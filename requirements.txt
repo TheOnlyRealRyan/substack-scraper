@@ -1,2 +1,5 @@
 playwright==1.54.0
 beautifulsoup4==4.13.4
+openai==1.98.0
+python-dotenv==1.1.1
+requests==2.32.4
