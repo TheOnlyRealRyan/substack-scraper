@@ -101,18 +101,36 @@ def send_email(output_path, sender_email, sender_password, recipient_email):
     for section in sections[1:]:  # Skip the initial header section
         if not section.strip():
             continue
+        
         lines = section.split("\n", 2)
+        
         if len(lines) < 2 or not lines[0].startswith("Summary:"):
             print(f"    ! Skipping invalid section: {section[:50]}...")
             continue
+        
         header = lines[0].replace("Summary: ", "").strip()
         text = lines[2].strip() if len(lines) > 2 else lines[1].strip()
+        
         if text.startswith("Status:"):
             text = html.escape(text)
-        else:
-            # Replace **text** with styled span
-            text = re.sub(r'\*\*(.*?)\*\*', r'<span style="color: #2c5282; font-weight: bold;">\1</span>', html.escape(text))
-            text = text.replace("\n", "<br>")
+        
+        def partial_escape(t):
+            # Bug fix implementation for regex not being escaped: Escape &, <, >, but not *
+            t = t.replace("&", "&amp;")
+            t = t.replace("<", "&lt;")
+            t = t.replace(">", "&gt;")
+            return t
+        
+        safe_text = partial_escape(text)
+        
+        # Replace **text** with styled span
+        safe_text = re.sub(r'\*\*(.*?)\*\*', r'<span style="color: #2c5282; font-weight: bold;">\1</span>', safe_text)
+        
+        # Replace *text* with styled span
+        safe_text = re.sub(r'\*(.*?)\*', r'<span style="color: #2c827f;">\1</span>', safe_text)
+        safe_text = safe_text.replace("\n", "<br>")
+        text = safe_text
+        
         formatted_sections.append((header, text))
         print(f"      Formatted section for: {header}")
     
