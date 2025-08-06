@@ -8,6 +8,8 @@ import html
 import re
 from dotenv import load_dotenv
 
+#TODO: Read from todays date subfolder
+
 # Configuration
 SUMMARY_DIR = "substack_articles/article_content_summary"
 OUTPUT_DIR = "substack_articles/combined_summaries"
@@ -138,14 +140,14 @@ def send_email(output_path, sender_email, sender_password, recipient_email):
         print("!!! No valid sections found for email body")
         html_content = """
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;">
-            <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">Combined Summaries - {}</h1>
+            <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">Article Summaries - {}</h1>
             <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0;">No valid summaries found.</p>
         </div>
         """.format(DATE)
     else:
         html_content = """
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;">
-            <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">Combined Summaries - {}</h1>
+            <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">Article Summaries - {}</h1>
         """.format(DATE)
         
         for header, text in formatted_sections:
@@ -164,7 +166,7 @@ def send_email(output_path, sender_email, sender_password, recipient_email):
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = recipient_email
-    msg['Subject'] = f"Combined Summaries - {DATE}"
+    msg['Subject'] = f"Article Summaries - {DATE}"
     
     # Attach HTML content
     msg.attach(MIMEText(html_content, 'html'))

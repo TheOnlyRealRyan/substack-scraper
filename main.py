@@ -5,6 +5,8 @@ import re
 import csv
 from bs4 import BeautifulSoup
 
+#TODO: write articles into date subfolder
+
 SEARCH_URL = "https://substack.com/search/artificial%20intelligence?searching=all_posts"
 OUTPUT_DIR = "substack_articles"
 CONTENT_SUBFOLDER = "article_content"

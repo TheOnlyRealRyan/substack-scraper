@@ -5,6 +5,7 @@ import requests
 from pathlib import Path
 import json
 
+#TODO: read from todays date subfolder and write to todays date subfolder
 
 # Configuration
 load_dotenv()
