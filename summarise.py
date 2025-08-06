@@ -13,21 +13,28 @@ INPUT_DIR = "substack_articles/article_content"
 OUTPUT_DIR = "substack_articles/article_content_summary"
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 API_KEY = os.getenv(env)  # Ensure your OpenAI API key is set as an environment variable
-print(API_KEY)
 MODEL = "deepseek/deepseek-r1-0528:free"
 SUMMARY_LENGTH = "200 word"
 
 
 def sanitize_filename(title: str) -> str:
-    return re.sub(r'[^a-zA-Z0-9_-]', '_', title)[:100]
+    # Remove special characters and limit filename to 100 characters
+    return re.sub(r'[^a-zA-Z0-9_-]', '', title)[:100]
 
 def get_summary(api_key: str, content: str) -> str:
+    """
+    Args:
+        api_key (str): Your personal API key
+        content (str): The loaded text from scraped articles
+
+    Returns:
+        str: AI summary of content
+    """
+    
     try:
         headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://your-app-url.com",  # Optional: replace with your app’s URL
-            "X-Title": "Article Summarizer"  # Optional: for OpenRouter analytics
+            "Content-Type": "application/json"
         }
         payload = {
             "model": MODEL,
@@ -43,9 +50,8 @@ def get_summary(api_key: str, content: str) -> str:
         response.raise_for_status()  # Raise exception for bad status codes (e.g., 4xx, 5xx)
 
         response_data = response.json()
-        print(response_data)
         if "choices" not in response_data or not response_data["choices"]:
-            return f"Error generating summary: No choices in API response: {json.dumps(response_data)}"
+            return f"!!! Error generating summary: No choices in API response: {json.dumps(response_data)}"
         
         choice = response_data["choices"][0]
         message = choice["message"]
@@ -56,26 +62,26 @@ def get_summary(api_key: str, content: str) -> str:
             summary = message["reasoning"].strip()
         
         if not summary:
-            return f"Error generating summary: No content or reasoning found in response: {json.dumps(response_data)}"
+            return f"!!! Error generating summary: No content or reasoning found in response: {json.dumps(response_data)}"
         
         return summary
-    
+
     except requests.exceptions.HTTPError as http_err:
-        return f"Error generating summary: HTTP error {http_err.response.status_code} - {http_err.response.text}"
+        return f"!!! Error generating summary: HTTP error {http_err.response.status_code} - {http_err.response.text}"
     except requests.exceptions.RequestException as req_err:
-        return f"Error generating summary: Request failed - {str(req_err)}"
+        return f"!!! Error generating summary: Request failed - {str(req_err)}"
     except KeyError as key_err:
-        return f"Error generating summary: Invalid response format - {str(key_err)}: {json.dumps(response_data)}"
+        return f"!!! Error generating summary: Invalid response format - {str(key_err)}: {json.dumps(response_data)}"
     except Exception as e:
-        return f"Error generating summary: Unexpected error - {str(e)}"
+        return f"!!! Error generating summary: Unexpected error - {str(e)}"
 
 
 def summarize_articles():
-    print(">>> Starting article summarization process")
+    print(">>> Starting article summarisation process")
     
     # Ensure input directory exists
     if not os.path.exists(INPUT_DIR):
-        print(f" Input directory {INPUT_DIR} does not exist")
+        print(f"!!! Input directory {INPUT_DIR} does not exist")
         return
     
     # Create output directory
@@ -84,16 +90,16 @@ def summarize_articles():
     # Get OpenRouter API key
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        print(" OPENROUTER_API_KEY environment variable not set. Please set it and try again.")
+        print("!!! OPENROUTER_API_KEY environment variable not set. Please set it and try again.")
         return
 
     # Get all .txt files from input directory
     text_files = [f for f in os.listdir(INPUT_DIR) if f.endswith('.txt')]
     print(f">>> Found {len(text_files)} text files to summarize")
 
-    for idx, filename in enumerate(text_files, 1):
+    for i, filename in enumerate(text_files, 1):
         input_path = os.path.join(INPUT_DIR, filename)
-        print(f"--- [{idx}/{len(text_files)}] Processing: {filename}")
+        print(f"--- [{i}/{len(text_files)}] Processing: {filename}")
         
         try:
             # Read the article content
@@ -105,7 +111,7 @@ def summarize_articles():
                 continue
 
             # Generate summary
-            print(f"    Sending content to OpenRouter for summarization...")
+            print(f"    Sending content to OpenRouter for summarisation...")
             summary = get_summary(api_key, content)
             
             # Save summary to output directory

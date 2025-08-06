@@ -11,9 +11,16 @@ CONTENT_SUBFOLDER = "article_content"
 CSV_FILE = "substack_ai_post_links.csv"
 
 def sanitize_filename(title: str) -> str:
-    return re.sub(r'[^a-zA-Z0-9_-]', '_', title)[:100]
+    # Remove special characters and limit filename to 100 characters
+    return re.sub(r'[^a-zA-Z0-9_-]', '', title)[:100]
 
 async def scrape_and_extract_content():
+    """
+    Scrape substack using a specific search filter: SEARCH_URL using playwright library
+    Saves all article links to a csv
+    Visits each artcle and saves content to a txt file
+    Filter out irrelavant segments from the html
+    """
     print(">>> Starting Substack scraping process")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     os.makedirs(os.path.join(OUTPUT_DIR, CONTENT_SUBFOLDER), exist_ok=True)
@@ -28,13 +35,13 @@ async def scrape_and_extract_content():
         await page.goto(SEARCH_URL, wait_until="networkidle")
 
         print(">>> Waiting for search results to load...")
-        await page.wait_for_selector('div.linkRow-ddH7S0.reader2-post-container', timeout=30000)
+        await page.wait_for_selector('div.linkRow-ddH7S0.reader2-post-container', timeout=30000) # website specific container
 
         print(">>> Extracting article links from the search results...")
         posts = await page.query_selector_all('div.linkRow-ddH7S0.reader2-post-container a[href^="https://"]')
 
         article_data = []
-        count, max_count = 0, 4
+        count, max_count = 0, 80 # limit articles pulled to 80
         for post in posts:
             count += 1
             if count > max_count:
@@ -52,16 +59,16 @@ async def scrape_and_extract_content():
 
         print(">>> Beginning to visit each article for content extraction...")
 
-        for idx, entry in enumerate(article_data, 1):
+        for i, entry in enumerate(article_data, 1):
             url = entry["url"]
-            print(f"--- [{idx}/{len(article_data)}] Visiting: {url}")
+            print(f"--- [{i}/{len(article_data)}] Visiting: {url}")
             try:
                 article_page = await context.new_page()
                 await article_page.goto(url, wait_until="networkidle", timeout=60000)
-                await article_page.wait_for_timeout(5000)  # Extra wait for dynamic content
+                await article_page.wait_for_timeout(2000)  # Extra wait for dynamic content
 
                 title = await article_page.title()
-                safe_name = sanitize_filename(title or f"article_{idx}")
+                safe_name = sanitize_filename(title or f"article_{i}")
 
                 # Get the page content
                 html_content = await article_page.content()

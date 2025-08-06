@@ -13,8 +13,8 @@ SUMMARY_DIR = "substack_articles/article_content_summary"
 OUTPUT_DIR = "substack_articles/combined_summaries"
 DATE = datetime.datetime.now().strftime("%Y-%m-%d")
 OUTPUT_FILENAME = f"summaries_{DATE}.txt"
-SMTP_SERVER = "smtp.gmail.com"  # For Gmail; change for other providers
-SMTP_PORT = 587  # For Gmail's TLS; change for other providers
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
 SEPARATOR = "\n" + "-" * 50 + "\n"
 
 def combine_summaries():
@@ -103,7 +103,7 @@ def send_email(output_path, sender_email, sender_password, recipient_email):
             continue
         lines = section.split("\n", 2)
         if len(lines) < 2 or not lines[0].startswith("Summary:"):
-            print(f"    ⚠️ Skipping invalid section: {section[:50]}...")
+            print(f"    ! Skipping invalid section: {section[:50]}...")
             continue
         header = lines[0].replace("Summary: ", "").strip()
         text = lines[2].strip() if len(lines) > 2 else lines[1].strip()
@@ -125,7 +125,6 @@ def send_email(output_path, sender_email, sender_password, recipient_email):
         </div>
         """.format(DATE)
     else:
-        # Create HTML content with inline CSS
         html_content = """
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;">
             <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">Combined Summaries - {}</h1>
