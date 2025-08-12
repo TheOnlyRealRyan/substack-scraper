@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and fill in your values
+aws_region = "us-east-1"
+
+# Get your OpenRouter API key from https://openrouter.ai/
+openrouter_api_key = "your_openrouter_api_key_here"
+
+# Gmail credentials for sending emails
+email_address = "your_email@gmail.com"
+email_password = "your_app_password_here"  # Use Gmail App Password, not regular password
+
+# Who should receive the daily summaries
+recipient_email = "recipient@example.com"

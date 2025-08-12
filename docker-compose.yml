@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  substack-scraper:
+    build: .
+    container_name: substack-scraper
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+networks:
+  scraper-network:
+    driver: bridge

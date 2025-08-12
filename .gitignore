@@ -2,3 +2,7 @@
 *.csv
 substack_articles
 *.env
+*.log
+*.db
+terraform.tfvars
+__pycache__
